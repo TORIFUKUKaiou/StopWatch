@@ -57,7 +57,7 @@ public abstract class AbsWatchModel {
         observable.notifyObservers(time);
     }
 
-    protected long now() {
+    private long now() {
         return System.currentTimeMillis();
     }
 
