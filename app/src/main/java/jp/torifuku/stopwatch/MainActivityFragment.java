@@ -20,6 +20,7 @@ public class MainActivityFragment extends Fragment {
     private final Observer observer;
     private TextView textView;
     private Button button;
+    private Button resetButton;
     private boolean running;
 
     public MainActivityFragment() {
@@ -44,16 +45,22 @@ public class MainActivityFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated (Bundle savedInstanceState) {
+    public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         textView = (TextView) getView().findViewById(R.id.textView);
-        showTime(0);
+        showTime(watchModel.getTime());
         button = (Button) getView().findViewById(R.id.button);
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                running = watchModel.startOrStop();
-                button.setText(running ? R.string.stop : R.string.start);
+                setRunningAndUpdateView(watchModel.startOrStop());
+            }
+        });
+        resetButton = (Button) getView().findViewById(R.id.reset_button);
+        resetButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                watchModel.reset();
             }
         });
     }
@@ -62,7 +69,7 @@ public class MainActivityFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
         watchModel.deleteObserver(observer);
-        if (running) {
+        if (getRunning()) {
             watchModel.startOrStop();
         }
     }
@@ -76,5 +83,23 @@ public class MainActivityFragment extends Fragment {
 
     private String represent(long time) {
         return String.format("%03d.%03d", (time / 1000), (time % 1000));
+    }
+
+    private void setRunning(boolean arg) {
+        running = arg;
+    }
+
+    private boolean getRunning() {
+        return running;
+    }
+
+    private void setRunningAndUpdateView(boolean arg) {
+        setRunning(arg);
+        updateView();
+    }
+
+    private void updateView() {
+        button.setText(getRunning() ? R.string.stop : R.string.start);
+        resetButton.setEnabled(!getRunning());
     }
 }

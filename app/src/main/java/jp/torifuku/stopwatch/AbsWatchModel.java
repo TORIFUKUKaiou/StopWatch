@@ -28,10 +28,8 @@ public abstract class AbsWatchModel {
                     last = now();
                     while (running) {
                         final long now = now();
-                        time += now - last;
+                        setTimeAndNotifyObservers(getTime() + now - last);
                         last = now;
-                        observable.changed();
-                        notifyObservers();
                         try {
                             Thread.sleep(50);
                         } catch (InterruptedException e) {
@@ -53,12 +51,30 @@ public abstract class AbsWatchModel {
         observable.deleteObserver(observer);
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public void reset() {
+        setTimeAndNotifyObservers(0);
+    }
+
     protected void notifyObservers() {
+        observable.changed();
         observable.notifyObservers(time);
     }
 
     private long now() {
         return System.currentTimeMillis();
+    }
+
+    private void setTime(long arg) {
+        time = arg;
+    }
+
+    private void setTimeAndNotifyObservers(long arg) {
+        setTime(arg);
+        notifyObservers();
     }
 
     private static class StopWatchModelObservable extends Observable {
